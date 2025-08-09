@@ -27,7 +27,6 @@ class Square extends StatelessWidget {
     if (isSelected){
       squareColor = Colors.green;
     }
-
     else if(isValidMove){
       squareColor = Colors.green[300];
     }

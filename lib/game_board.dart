@@ -35,11 +35,14 @@ class _GameBoardState extends State<GameBoard> {
 
   //initialize board
   void _initializeBoard(){
+
     
     //initialize board with nullsm each piece in coorect position
 
     List<List<ChessPiece?>> newBoard =
         List.generate(8, (index) => List.generate(8, (index) => null));
+
+
 
     //Pawn positions
     for(int i = 0; i< 8; i++){
@@ -63,6 +66,12 @@ class _GameBoardState extends State<GameBoard> {
         imagePath: 'lib/images/rook.png'
     ) ;
 
+    newBoard[0][7] = ChessPiece(
+        type: ChessPieceType.rook,
+        isWhite: false,
+        imagePath: 'lib/images/rook.png'
+    ) ;
+
     newBoard[7][0] = ChessPiece(
         type: ChessPieceType.rook,
         isWhite: true,
@@ -75,84 +84,78 @@ class _GameBoardState extends State<GameBoard> {
         imagePath: 'lib/images/rook.png'
     ) ;
 
-    newBoard[0][7] = ChessPiece(
-        type: ChessPieceType.rook,
-        isWhite: false,
-        imagePath: 'lib/images/rook.png'
-    ) ;
-
 
     //Place knights
     newBoard[0][1] = ChessPiece(
-        type: ChessPieceType.rook,
+        type: ChessPieceType.knight,
         isWhite: false,
         imagePath: 'lib/images/knight.png'
     ) ;
 
     newBoard[0][6] = ChessPiece(
-        type: ChessPieceType.rook,
+        type: ChessPieceType.knight,
         isWhite: false,
         imagePath: 'lib/images/knight.png'
     ) ;
 
     newBoard[7][1] = ChessPiece(
-        type: ChessPieceType.rook,
+        type: ChessPieceType.knight,
         isWhite: true,
         imagePath: 'lib/images/knight.png'
     ) ;
 
     newBoard[7][6] = ChessPiece(
-        type: ChessPieceType.rook,
+        type: ChessPieceType.knight,
         isWhite: true,
         imagePath: 'lib/images/knight.png'
     ) ;
 
     //Place bishops
     newBoard[0][2] = ChessPiece(
-        type: ChessPieceType.rook,
+        type: ChessPieceType.bishop,
         isWhite: false,
         imagePath: 'lib/images/bishop.png'
     ) ;
 
     newBoard[0][5] = ChessPiece(
-        type: ChessPieceType.rook,
+        type: ChessPieceType.bishop,
         isWhite: false,
         imagePath: 'lib/images/bishop.png'
     ) ;
 
     newBoard[7][2] = ChessPiece(
-        type: ChessPieceType.rook,
+        type: ChessPieceType.bishop,
         isWhite: true,
         imagePath: 'lib/images/bishop.png'
     ) ;
 
     newBoard[7][5] = ChessPiece(
-        type: ChessPieceType.rook,
+        type: ChessPieceType.bishop,
         isWhite: true,
         imagePath: 'lib/images/bishop.png'
     ) ;
 
     //Place queens
     newBoard[0][3] = ChessPiece(
-        type: ChessPieceType.rook,
+        type: ChessPieceType.queen,
         isWhite: false,
         imagePath: 'lib/images/queen.png'
     ) ;
 
     newBoard[7][4] = ChessPiece(
-        type: ChessPieceType.rook,
+        type: ChessPieceType.queen,
         isWhite: true,
         imagePath: 'lib/images/queen.png'
     ) ;
     //Place kings
     newBoard[0][4] = ChessPiece(
-        type: ChessPieceType.rook,
+        type: ChessPieceType.king,
         isWhite: false,
         imagePath: 'lib/images/king.png'
     ) ;
 
     newBoard[7][3] = ChessPiece(
-        type: ChessPieceType.rook,
+        type: ChessPieceType.king,
         isWhite: true,
         imagePath: 'lib/images/king.png'
     ) ;
@@ -206,24 +209,165 @@ class _GameBoardState extends State<GameBoard> {
         }
         break;
 
-
       case ChessPieceType.rook:
-        break;
+      //horizontal and vertical directions
+        var directions = [
+          [-1,0], // up
+          [1,0], // down
+          [0,-1],// left
+          [0,1], // right
+        ];
+
+        for(var direction in directions){
+          var i =1;
+          while(true){
+            var newRow = row + i * direction[0];
+            var newCol = col + i * direction[1];
+            if (!isInBoard(newRow, newCol)){
+              break;
+            }
+            if(board[newRow][newCol] != null){
+              if(board[newRow][newCol]!.isWhite != piece.isWhite){
+                candidateMoves.add([newRow, newCol]); //kill pieces
+              }
+              break; //blocked
+            }
+            candidateMoves.add([newRow, newCol]);
+            i++;
+          }
+        }
+      break;
+
       case ChessPieceType.knight:
-        break;
+        //all eight L-shaped possible moves
+      var knightMoves = [
+        [-2,-1], //up 2 left 1
+        [-2,1],  //up 2 right 1
+        [-1,-2], //up 1 left 2
+        [-1,2],  //up 1 right 2
+        [1,-2],  //down 1 left 2
+        [1,2],   //down 1 right 2
+        [2,-1],  //down 2 left 1
+        [2,1],   //down 2 right 1
+      ];
+
+      for(var move in knightMoves){
+        var newRow = row + move[0];
+        var newCol = col + move[1];
+        if(!isInBoard(newRow, newCol)){
+          continue;
+        }
+        if(board[newRow][newCol] != null){
+          if(board[newRow][newCol]!.isWhite != piece.isWhite){
+            candidateMoves.add([newRow, newCol]);//this will capture
+          }
+          continue;//blocked
+        }
+        candidateMoves.add([newRow,newCol]);
+      }
+      break;
+
+
       case ChessPieceType.bishop:
+        var directions = [
+          [-1,-1], //up left
+          [-1,1], //up right
+          [1,-1], //down left
+          [1,1],  //down right
+        ];
+
+        for(var direction in directions){
+          var i= 1;
+          while (true){
+            var newRow = row + i * direction[0];
+            var newCol = col + i * direction[1];
+            if(!isInBoard(newRow, newCol)){
+              break;
+            }
+            if(board[newRow][newCol] != null){
+              if(board[newRow][newCol]!.isWhite){
+                candidateMoves.add([newRow, newCol]);
+              }
+              break;
+            }
+            candidateMoves.add([newRow, newCol]);
+            i++;
+          }
+        }
         break;
       case ChessPieceType.queen:
+        //can move all eight directions
+        var directions = [
+          [-1,0],//up
+          [1,0],//down
+          [0,-1],//left
+          [0,1],//right
+          [-1,-1],//up left
+          [-1,1],// up right
+          [1,-1],// down left
+          [1,1],// down right
+        ];
+
+        for(var direction in directions){
+          var i = 1;
+          while(true){
+            var newRow = row + i * direction[0];
+            var newCol = col + i * direction[1];
+            if(!isInBoard(newRow, newCol)){
+              break;
+            }
+            if(board[newRow][newCol] != null){
+              if(board[newRow][newCol]!.isWhite != piece.isWhite){
+                candidateMoves.add([newRow, newCol]);
+              }
+              break;
+            }
+            candidateMoves.add([newRow, newCol]);
+            i++;
+          }
+        }
         break;
       case ChessPieceType.king:
+        //all eight directions
+        var directions = [
+          [-1,0],//up
+          [1,0],//down
+          [0,-1],//left
+          [0,1],//right
+          [-1,-1],//up left
+          [-1,1],// up right
+          [1,-1],// down left
+          [1,1],// down right
+        ];
+
+        for(var direction in directions){
+          var newRow = row + direction[0];
+          var newCol = col +direction[1];
+          if(!isInBoard(newRow, newCol)){
+            continue;
+          }
+          if(board[newRow][newCol] != null){
+            if(board[newRow][newCol]!.isWhite != piece.isWhite){
+              candidateMoves.add([newRow, newCol]);//capture
+            }
+            continue;
+          }
+          candidateMoves.add([newRow, newCol]);
+        }
         break;
+
       default:
     }
 
     return candidateMoves;
   }
 
+  //moving the pieces
+  void movePiece(int newRow, int newCol){
+    //move the piece and clear the old position
+    
 
+  }
 
 
   @override
