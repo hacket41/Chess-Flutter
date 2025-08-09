@@ -45,8 +45,31 @@ class _GameBoardState extends State<GameBoard> {
           imagePath: 'lib/images/pawn.png'
       );
     }
-    //Rooks positions
 
+    //Rooks positions
+    newBoard[0][0] = ChessPiece(
+        type: ChessPieceType.rook,
+        isWhite: true,
+        imagePath: 'lib/images/rook.png'
+    ) ;
+
+    newBoard[7][0] = ChessPiece(
+        type: ChessPieceType.rook,
+        isWhite: false,
+        imagePath: 'lib/images/rook.png'
+    ) ;
+
+    newBoard[7][7] = ChessPiece(
+        type: ChessPieceType.rook,
+        isWhite: false,
+        imagePath: 'lib/images/rook.png'
+    ) ;
+
+    newBoard[0][7] = ChessPiece(
+        type: ChessPieceType.rook,
+        isWhite: true,
+        imagePath: 'lib/images/rook.png'
+    ) ;
     //Place knights
 
     //Place bishops
