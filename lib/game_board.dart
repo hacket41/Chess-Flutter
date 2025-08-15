@@ -27,6 +27,13 @@ class _GameBoardState extends State<GameBoard> {
   //each move is depicted as a list with 2 elements: row and col;
   List<List<int>> validMoves = [];
 
+  //a list of captured white pieces
+  List<ChessPiece> whitePiecesTaken = [];
+
+
+  //a list of captured black pieces
+  List<ChessPiece> blackPiecesTaken = [];
+
   @override
   void initState(){
     super.initState();
@@ -167,13 +174,26 @@ class _GameBoardState extends State<GameBoard> {
 //selected piece by the user
   void pieceSelected(int row, int col){
     setState(() {
-      //selected a piece if the piece is in a that position
-      if(board[row][col] != null){
+      //no piece selected, this is the first slection
+      if(selectedPiece == null && board[row][col] != null){
         selectedPiece = board[row][col];
         selectedRow = row;
         selectedCol = col;
       }
 
+      //piece  is already selected, but the user can select another one of their pieces
+      else if(board[row][col] != null &&
+              board[row][col]!.isWhite == selectedPiece!.isWhite){
+        selectedPiece = board[row][col];
+        selectedRow = row;
+        selectedCol = col;
+      }
+
+      //if these is a piece selected and user taps another suare
+      else if(selectedPiece != null &&
+              validMoves.any((element) => element[0] == row && element[1] == col)){
+        movePiece(row, col);
+      }
       //valid moves calculations
       validMoves =
           calculateRawValidMoves(selectedRow, selectedCol, selectedPiece);
@@ -184,6 +204,10 @@ class _GameBoardState extends State<GameBoard> {
   List<List<int>> calculateRawValidMoves(int row, int col, ChessPiece? piece){
     List<List<int>> candidateMoves = [];
     //different directions based on their color
+
+    if(piece == null){
+      return[];
+    }
     int direction = piece!.isWhite ? -1 : 1;
 
     switch(piece.type){
@@ -239,7 +263,7 @@ class _GameBoardState extends State<GameBoard> {
       break;
 
       case ChessPieceType.knight:
-        //all eight L-shaped possible moves
+       //all eight L-shaped possible moves
       var knightMoves = [
         [-2,-1], //up 2 left 1
         [-2,1],  //up 2 right 1
@@ -365,8 +389,16 @@ class _GameBoardState extends State<GameBoard> {
   //moving the pieces
   void movePiece(int newRow, int newCol){
     //move the piece and clear the old position
-    
+    board[newRow][newCol] = selectedPiece;
+    board[selectedRow][selectedCol] = null;
 
+    //clear selection
+    setState((){
+        selectedPiece = null;
+        selectedRow = -1;
+        selectedCol = -1;
+        validMoves = [];
+    });
   }
 
 
